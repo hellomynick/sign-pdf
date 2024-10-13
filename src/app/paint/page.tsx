@@ -1,16 +1,24 @@
 "use client";
 
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-export default function Page() {
-  const canvasDraw = useRef<HTMLCanvasElement>(null);
-  const [contextDraw, setContextDraw] = useState<CanvasRenderingContext2D | undefined | null>(null);
+interface PainProps {
+  width: number;
+  height: number;
+  canvasDraw: React.RefObject<HTMLCanvasElement>;
+}
+
+export default function Page(props: PainProps) {
+  props.canvasDraw = useRef<HTMLCanvasElement>(null);
+  const [contextDraw, setContextDraw] = useState<
+    CanvasRenderingContext2D | undefined | null
+  >(null);
   const [drawing, setDrawing] = useState<boolean>(false);
   const [rectDOM, setRectDOM] = useState<DOMRect>();
   const radius = 1;
 
   useEffect(() => {
-    const canvas = canvasDraw.current;
+    const canvas = props.canvasDraw.current;
     if (canvas) {
       const context = canvas.getContext("2d");
       const rect = canvas.getBoundingClientRect();
@@ -25,14 +33,14 @@ export default function Page() {
 
       setContextDraw(context);
     }
-  }, [radius]);
+  }, [props.canvasDraw]);
 
   const handleMouseDown = (event: React.MouseEvent) => {
     setDrawing(true);
     handleMouseMove(event);
   };
 
-  const handleMouseUp = (event: React.MouseEvent) => {
+  const handleMouseUp = () => {
     setDrawing(false);
     contextDraw?.beginPath();
   };
@@ -51,15 +59,13 @@ export default function Page() {
   };
 
   return (
-    <div className="flex w-full h-full">
-      <canvas className="block"
-              ref={canvasDraw}
-              width="800px"
-              height="800px"
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}/>
-
-    </div>
+    <canvas
+      ref={props.canvasDraw}
+      width={props.width}
+      height={props.height}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+    />
   );
 }
